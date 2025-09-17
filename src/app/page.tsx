@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
-import setAuthFlowParams from "@/utils/setAuthFlowParams";
 import { useRouter, useSearchParams } from "next/navigation";
 import generateCodeVerifier from "@/utils/generateCodeVerifier";
 import generateCodeChallenge from "@/utils/generateCodeChallenge";
