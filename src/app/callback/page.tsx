@@ -11,7 +11,7 @@ export default function Home() {
   const [profile, setProfile] = useState<UserProfile>();
   const searchParams = useSearchParams();
 
-    const [accessToken, setAccessToken] = useState<string>("")
+  const [accessToken, setAccessToken] = useState<string>("");
 
   useEffect(() => {
     async function getAccessTokenAux() {
@@ -22,19 +22,19 @@ export default function Home() {
 
       const code = searchParams.get("code");
 
-      if (!code) return
+      if (!code) return;
 
       const resAccessToken = await getAccessToken(
         process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
         code
       );
 
-      if (!resAccessToken.access_token) return
+      if (!resAccessToken.access_token) return;
 
-      setAccessToken(resAccessToken.access_token)
+      setAccessToken(resAccessToken.access_token);
     }
 
-    getAccessTokenAux()
+    getAccessTokenAux();
   }, []);
 
   useEffect(() => {
@@ -46,8 +46,10 @@ export default function Home() {
 
       const resJson = await result.json();
 
-      setProfile(resJson)
+      setProfile(resJson);
 
+      const result2 = await fetch("/api/get-access-token", {  method: "GET" })
+      console.log(await result2.json())
       return resJson;
     };
 
