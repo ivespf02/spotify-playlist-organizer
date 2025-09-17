@@ -4,7 +4,7 @@ import axios from "axios";
 export async function POST(req: Request) {
   const body = await req.json();
 
-  const { code, clientId }: { code: string; clientId: string } = body;
+  const { code, verifier }: { code: string; verifier: string } = body;
 
   if (!code) {
     return NextResponse.json(
@@ -15,19 +15,19 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!clientId) {
+   if (!verifier) {
     return NextResponse.json(
       {
-        error: "No client id provided",
+        error: "No verifier provided",
       },
       { status: 400 }
     );
   }
 
-  const client_id = process.env.SPOTIFY_CLIENT_ID;
-  const callback_url = process.env.CALLBACK_URL;
+  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const callbackURL = process.env.CALLBACK_URL;
 
-  if (!client_id) {
+  if (!clientId) {
     return NextResponse.json(
       {
         error: "No client id detected",
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!callback_url) {
+  if (!callbackURL) {
     return NextResponse.json(
       {
         error: "No callback URL detected",
@@ -46,8 +46,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    const verifier = localStorage.getItem("verifier");
-
     const params = new URLSearchParams();
     params.append("client_id", clientId);
     params.append("grant_type", "authorization_code");

@@ -16,43 +16,28 @@ export default function Home() {
   const [privateAccessToken, setPrivateAccessToken] = useState<string>("");
 
   useEffect(() => {
-    async function getAccessTokenAux() {
-      if (!process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID) {
-        console.error("Spotify client id not defined");
-        throw new Error("Spotify client id not defined");
-      }
-
+    async function getAccessToken() {
       const code = searchParams.get("code");
+      const verifier = localStorage.getItem("verifier");
 
-      if (!code) return;
+      if (!code || !verifier) return;
 
-      const resAccessToken = await getAccessToken(
-        process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
-        code
-      );
-
-      if (!resAccessToken.access_token) return;
-
-      setAccessToken(resAccessToken.access_token);
-    }
-
-    getAccessTokenAux();
-  }, []);
-
-  console.log("PRIVATE ACCESS TOKEN: ", privateAccessToken)
-
-  useEffect(() => {
-    async function getPrivateAccessTokenAux() {
-      const res = await fetch("/api/get-access-token", { method: "GET" });
+      const res = await fetch("/api/get-access-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: code, verifier: verifier }),
+      });
 
       const resJson = await res.json();
 
       if (resJson.accessToken) {
-        setPrivateAccessToken(resJson.accessToken);
+        setAccessToken(resJson.accessToken);
       }
     }
 
-    getPrivateAccessTokenAux();
+    getAccessToken();
   }, []);
 
   useEffect(() => {
@@ -73,9 +58,9 @@ export default function Home() {
   }, [accessToken]);
 
   async function createSpotifyPlaylist() {
-    if (!profile || !profile.id) return
+    if (!profile || !profile.id) return;
 
-    console.log(profile)
+    console.log(profile);
     const url = `https://api.spotify.com/v1/users/${profile.id}/playlists`;
 
     const data = {
