@@ -1,10 +1,8 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import styles from "./page.module.css";
-import setAuthFlowParams from "@/utils/setAuthFlowParams";
 import { useRouter, useSearchParams } from "next/navigation";
 import { UserProfile } from "@/types/UserProfileI";
-import getAccessToken from "@/utils/getAccessToken";
 import axios from "axios";
 
 export default function Home() {

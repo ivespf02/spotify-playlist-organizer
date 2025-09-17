@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import setAuthFlowParams from "@/utils/setAuthFlowParams";
 import { useRouter, useSearchParams } from "next/navigation";
+import generateCodeVerifier from "@/utils/generateCodeVerifier";
+import generateCodeChallenge from "@/utils/generateCodeChallenge";
 
 export default function Home() {
   const router = useRouter();
@@ -10,26 +12,31 @@ export default function Home() {
 
   useEffect(() => {
     async function redirectToSpotifyAuthFlow() {
-      console.log(process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID);
-      if (!process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID) {
-        console.error("Spotify client id not defined");
-        throw new Error("Spotify client id not defined");
-      }
-
       const code = searchParams.get("code");
 
+      const verifier = generateCodeVerifier(128);
+      const challenge = await generateCodeChallenge(verifier);
+
       if (!code) {
-        const res = await setAuthFlowParams(
-          process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID
-        );
+        const res = await fetch("/api/get-spotify-auth-url", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            verifier: verifier,
+            challenge: challenge
+          })
+        });
 
-        if (!res.spotify_url) {
-          throw new Error(
-            "An error occurred while generating spotify authentication URL"
-          );
+        console.log(res)
+
+        const resJson = await res.json();
+
+        if (resJson.spotifyUrl && resJson.verifier) {
+          localStorage.setItem("verifier", resJson.verifier);
+          router.push(resJson.spotifyUrl);
         }
-
-        router.push(res.spotify_url);
       }
     }
 
