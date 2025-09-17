@@ -18,7 +18,7 @@ async function setAuthFlowParams(clientId: string, scope?: string): Promise<{ sp
     params.append("client_id", clientId);
     params.append("response_type", "code");
     params.append("redirect_uri", process.env.NEXT_PUBLIC_CALLBACK_URL);
-    params.append("scope", scope || "user-read-private user-read-email");
+    params.append("scope", scope || "user-read-private user-read-email playlist-modify-public playlist-modify-private user-library-modify user-library-read");
     params.append("code_challenge_method", "S256");
     params.append("code_challenge", challenge);
 
