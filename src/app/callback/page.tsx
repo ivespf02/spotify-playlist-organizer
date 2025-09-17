@@ -5,6 +5,7 @@ import setAuthFlowParams from "@/utils/setAuthFlowParams";
 import { useRouter, useSearchParams } from "next/navigation";
 import { UserProfile } from "@/types/UserProfileI";
 import getAccessToken from "@/utils/getAccessToken";
+import axios from "axios";
 
 export default function Home() {
   const [playlists, setPlaylists] = useState<any[]>();
@@ -12,6 +13,7 @@ export default function Home() {
   const searchParams = useSearchParams();
 
   const [accessToken, setAccessToken] = useState<string>("");
+  const [privateAccessToken, setPrivateAccessToken] = useState<string>("");
 
   useEffect(() => {
     async function getAccessTokenAux() {
@@ -37,6 +39,22 @@ export default function Home() {
     getAccessTokenAux();
   }, []);
 
+  console.log("PRIVATE ACCESS TOKEN: ", privateAccessToken)
+
+  useEffect(() => {
+    async function getPrivateAccessTokenAux() {
+      const res = await fetch("/api/get-access-token", { method: "GET" });
+
+      const resJson = await res.json();
+
+      if (resJson.accessToken) {
+        setPrivateAccessToken(resJson.accessToken);
+      }
+    }
+
+    getPrivateAccessTokenAux();
+  }, []);
+
   useEffect(() => {
     const fetchProfile = async () => {
       const result = await fetch("https://api.spotify.com/v1/me", {
@@ -48,13 +66,42 @@ export default function Home() {
 
       setProfile(resJson);
 
-      const result2 = await fetch("/api/get-access-token", {  method: "GET" })
-      console.log(await result2.json())
       return resJson;
     };
 
     if (accessToken.length) fetchProfile();
   }, [accessToken]);
+
+  async function createSpotifyPlaylist() {
+    if (!profile || !profile.id) return
+
+    console.log(profile)
+    const url = `https://api.spotify.com/v1/users/${profile.id}/playlists`;
+
+    const data = {
+      name: "New Playlist",
+      description: "New playlist description",
+      public: false,
+    };
+
+    try {
+      const response = await axios.post(url, data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Playlist created:", response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "Error creating playlist:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -81,6 +128,9 @@ export default function Home() {
           <li>
             Profile Image: <span id="imgUrl"></span>
           </li>
+          <button onClick={() => createSpotifyPlaylist()}>
+            create playlist
+          </button>
         </ul>
       </section>
     </div>
