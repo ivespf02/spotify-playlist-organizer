@@ -1,16 +1,20 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "./page.module.css";
 import setAuthFlowParams from "@/utils/setAuthFlowParams";
 import { useRouter, useSearchParams } from "next/navigation";
+import { UserProfile } from "@/types/UserProfileI";
+import getAccessToken from "@/utils/getAccessToken";
 
 export default function Home() {
-  const router = useRouter();
+  const [playlists, setPlaylists] = useState<any[]>();
+  const [profile, setProfile] = useState<UserProfile>();
   const searchParams = useSearchParams();
 
+    const [accessToken, setAccessToken] = useState<string>("")
+
   useEffect(() => {
-    async function redirectToSpotifyAuthFlow() {
-      console.log(process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID);
+    async function getAccessTokenAux() {
       if (!process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID) {
         console.error("Spotify client id not defined");
         throw new Error("Spotify client id not defined");
@@ -18,23 +22,37 @@ export default function Home() {
 
       const code = searchParams.get("code");
 
-      if (!code) {
-        const res = await setAuthFlowParams(
-          process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID
-        );
+      if (!code) return
 
-        if (!res.spotify_url) {
-          throw new Error(
-            "An error occurred while generating spotify authentication URL"
-          );
-        }
+      const resAccessToken = await getAccessToken(
+        process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
+        code
+      );
 
-        router.push(res.spotify_url);
-      }
+      if (!resAccessToken.access_token) return
+
+      setAccessToken(resAccessToken.access_token)
     }
 
-    redirectToSpotifyAuthFlow();
+    getAccessTokenAux()
   }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const result = await fetch("https://api.spotify.com/v1/me", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      const resJson = await result.json();
+
+      setProfile(resJson)
+
+      return resJson;
+    };
+
+    if (accessToken.length) fetchProfile();
+  }, [accessToken]);
 
   return (
     <div className={styles.page}>

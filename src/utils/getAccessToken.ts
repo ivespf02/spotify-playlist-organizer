@@ -1,5 +1,5 @@
 async function getAccessToken(clientId: string, code: string): Promise<{ access_token: string | null, error?: string }> {
-    if (!process.env.CALLBACK_URL) { 
+    if (!process.env.NEXT_PUBLIC_CALLBACK_URL) { 
         return {
             error: "Callback URL not defined",
             access_token: null
@@ -12,7 +12,7 @@ async function getAccessToken(clientId: string, code: string): Promise<{ access_
     params.append("client_id", clientId);
     params.append("grant_type", "authorization_code");
     params.append("code", code);
-    params.append("redirect_uri", process.env.CALLBACK_URL || "");
+    params.append("redirect_uri", process.env.NEXT_PUBLIC_CALLBACK_URL || "");
     params.append("code_verifier", verifier!);
 
     const result = await fetch("https://accounts.spotify.com/api/token", {
