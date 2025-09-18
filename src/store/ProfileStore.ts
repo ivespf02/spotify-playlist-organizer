@@ -11,7 +11,7 @@ type ProfileState = {
   clearProfile: () => void;
 };
 
-export const userProfileStore = create<ProfileState>((set) => ({
+export const useProfileStore = create<ProfileState>((set) => ({
   profile: {} as UserProfileStoreT,
 
   setProfile: (profile: UserProfileStoreT) =>

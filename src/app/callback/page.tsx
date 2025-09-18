@@ -8,6 +8,7 @@ import { SpotifyService } from "@/services/SpotifyService/SpotifyService";
 import { PlaylistsI } from "@/types/PlaylistI";
 import { PlaylistCard } from "@/components/PlaylistCard";
 import { usePlaylistsStore } from "@/store/PlaylistsStore";
+import { useProfileStore } from "@/store/ProfileStore";
 
 const spotifyService = SpotifyService.create();
 
@@ -16,8 +17,8 @@ export default function Home() {
   const searchParams = useSearchParams();
 
   const { playlists, setPlaylists } = usePlaylistsStore()
+  const { profile, setProfile } = useProfileStore()
 
-  const [profile, setProfile] = useState<UserProfileI>({} as UserProfileI);
   const [accessToken, setAccessToken] = useState<string>("");
   const [privateAccessToken, setPrivateAccessToken] = useState<string>("");
 
@@ -57,7 +58,10 @@ export default function Home() {
 
       if (res.success && res.data) {
         console.log(res.data);
-        setProfile(res.data);
+        setProfile({
+          ...res.data,
+          accessToken: accessToken
+        });
       }
     };
 
