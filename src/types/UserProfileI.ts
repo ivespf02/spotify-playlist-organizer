@@ -1,6 +1,6 @@
 import { Image } from "./ImageI";
 
-export interface UserProfile {
+export interface UserProfileI {
     country: string;
     display_name: string;
     email: string;

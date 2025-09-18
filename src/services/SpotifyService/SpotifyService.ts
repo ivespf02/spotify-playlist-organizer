@@ -1,4 +1,4 @@
-import { UserProfile } from "@/types/UserProfileI";
+import { UserProfileI } from "@/types/UserProfileI";
 import { SpotifyServiceI } from "./SpotifyServiceI";
 import axios from "axios";
 import { PlaylistsI } from "@/types/PlaylistI";
@@ -20,11 +20,11 @@ export class SpotifyService implements SpotifyServiceI {
 
   public async getUserProfile(): Promise<{
     success: boolean;
-    data: UserProfile | null;
+    data: UserProfileI | null;
   }> {
     const url = "https://api.spotify.com/v1/me";
     console.log(this.accessToken)
-    const { data }: { data: UserProfile } = await axios.get(url, {
+    const { data }: { data: UserProfileI } = await axios.get(url, {
       headers: {
         Authorization: "Bearer " + this.accessToken,
       },

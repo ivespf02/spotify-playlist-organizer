@@ -1,10 +1,10 @@
 import { PlaylistsI } from "@/types/PlaylistI";
-import { UserProfile } from "@/types/UserProfileI";
+import { UserProfileI } from "@/types/UserProfileI";
 
 export interface SpotifyServiceI {
     getUserProfile(): Promise<{
         "success": boolean;
-        data: UserProfile | null
+        data: UserProfileI | null
     }>
     
     getSongsByUserId(user_id: string): Promise<any[]>;

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
-import { UserProfile } from "@/types/UserProfileI";
+import { UserProfileI } from "@/types/UserProfileI";
 import axios from "axios";
 import { SpotifyService } from "@/services/SpotifyService/SpotifyService";
 import { PlaylistsI } from "@/types/PlaylistI";
@@ -17,7 +17,7 @@ export default function Home() {
 
   const { playlists, setPlaylists } = usePlaylistsStore()
 
-  const [profile, setProfile] = useState<UserProfile>({} as UserProfile);
+  const [profile, setProfile] = useState<UserProfileI>({} as UserProfileI);
   const [accessToken, setAccessToken] = useState<string>("");
   const [privateAccessToken, setPrivateAccessToken] = useState<string>("");
 
