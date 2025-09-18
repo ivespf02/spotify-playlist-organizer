@@ -4,14 +4,21 @@ import styles from "./page.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
 import { UserProfile } from "@/types/UserProfileI";
 import axios from "axios";
+import { SpotifyService } from "@/services/SpotifyService/SpotifyService";
+import { Playlists } from "@/types/PlaylistI";
+import { PlaylistCard } from "@/components/PlaylistCard";
+
+const spotifyService = SpotifyService.create();
 
 export default function Home() {
-  const [playlists, setPlaylists] = useState<any[]>();
-  const [profile, setProfile] = useState<UserProfile>();
+  const [playlists, setPlaylists] = useState<Playlists>({} as Playlists);
+  const [profile, setProfile] = useState<UserProfile>({} as UserProfile);
   const searchParams = useSearchParams();
 
   const [accessToken, setAccessToken] = useState<string>("");
   const [privateAccessToken, setPrivateAccessToken] = useState<string>("");
+
+  console.log(playlists);
 
   useEffect(() => {
     async function getAccessToken() {
@@ -32,6 +39,7 @@ export default function Home() {
 
       if (resJson.accessToken) {
         setAccessToken(resJson.accessToken);
+        spotifyService.setAccessToken(resJson.accessToken);
       }
     }
 
@@ -40,20 +48,38 @@ export default function Home() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const result = await fetch("https://api.spotify.com/v1/me", {
-        method: "GET",
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      if (!accessToken) return;
 
-      const resJson = await result.json();
+      const res = await spotifyService.getUserProfile();
 
-      setProfile(resJson);
-
-      return resJson;
+      if (res.success && res.data) {
+        console.log(res.data);
+        setProfile(res.data);
+      }
     };
 
     if (accessToken.length) fetchProfile();
   }, [accessToken]);
+
+  useEffect(() => {
+    const fetchPlaylists = async () => {
+      if (!profile || !profile.id) return;
+
+      const res = await spotifyService.getPlaylistsByUserId(profile.id);
+
+      if (res.success && res.data) {
+        console.log(res.data);
+        setPlaylists(res.data);
+
+        const res2 = await spotifyService.getSongsByPlaylist(
+          res.data.items[0].id
+        );
+        console.log(res2);
+      }
+    };
+
+    if (accessToken.length) fetchPlaylists();
+  }, [accessToken, profile]);
 
   async function createSpotifyPlaylist() {
     if (!profile || !profile.id) return;
@@ -86,36 +112,49 @@ export default function Home() {
     }
   }
 
-  return (
-    <div className={styles.page}>
-      <h1>Display your Spotify Profile Data</h1>
+  if (profile.id) {
+    return (
+      <div className={styles.container}>
+        <section className={styles.profile}>
+          <div className={styles.profileWrapper}>
+            <img
+              className={styles.avatar}
+              src={profile.images[0].url}
+              alt="User avatar"
+              width="120"
+              height="120"
+            />
+            <div className={styles.userInfo}>
+              <h1 className={styles.userName}>{profile.display_name}</h1>
+              <ul className={styles.userDetails}>
+                <li className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Email:</span>{" "}
+                  <span id="email">{profile.email}</span>
+                </li>
+              </ul>
+              <button
+                onClick={() => createSpotifyPlaylist()}
+                className={styles.createPlaylistButton}
+              >
+                Create New Playlist
+              </button>
+            </div>
+          </div>
+        </section>
 
-      <section id="profile">
-        <h2>
-          Logged in as <span id="displayName"></span>
-        </h2>
-        <img id="avatar" width="200" src="#" />
-        <ul>
-          <li>
-            User ID: <span id="id"></span>
-          </li>
-          <li>
-            Email: <span id="email"></span>
-          </li>
-          <li>
-            Spotify URI: <a id="uri" href="#"></a>
-          </li>
-          <li>
-            Link: <a id="url" href="#"></a>
-          </li>
-          <li>
-            Profile Image: <span id="imgUrl"></span>
-          </li>
-          <button onClick={() => createSpotifyPlaylist()}>
-            create playlist
-          </button>
-        </ul>
-      </section>
-    </div>
-  );
+        <section className={styles.playlists}>
+          <h2 className={styles.sectionTitle}>Your Playlists</h2>
+          <div className={styles.playlistGrid}>
+            {playlists.items &&
+              playlists.items.map((playlist) => {
+                console.log(playlist);
+                return <PlaylistCard key={playlist.id} playlist={playlist} />;
+              })}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  return null;
 }

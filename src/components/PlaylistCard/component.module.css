@@ -1,0 +1,38 @@
+.playlistCard {
+  background: #282828;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #333333;
+}
+
+.playlistCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+.playlistCover {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.playlistInfo {
+  padding: 1rem;
+}
+
+.playlistTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+}
+
+.playlistDesc {
+  font-size: 0.875rem;
+  color: #b3b3b3;
+  margin: 0;
+  line-height: 1.4;
+}
