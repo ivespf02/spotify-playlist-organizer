@@ -1,4 +1,4 @@
-import { Playlists } from "@/types/PlaylistI";
+import { PlaylistsI } from "@/types/PlaylistI";
 import { UserProfile } from "@/types/UserProfileI";
 
 export interface SpotifyServiceI {
@@ -10,7 +10,7 @@ export interface SpotifyServiceI {
     getSongsByUserId(user_id: string): Promise<any[]>;
     getPlaylistsByUserId(user_id: string): Promise<{
         "success": boolean;
-        data: Playlists | null
+        data: PlaylistsI | null
     }>
     getSongsByPlaylist(playlist_id: string): Promise<any>
     addSongsToPlaylist(user_id: string, song_id: string, playlist_id: string): Promise<any>

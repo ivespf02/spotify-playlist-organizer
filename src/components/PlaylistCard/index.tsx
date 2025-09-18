@@ -1,8 +1,8 @@
 "use client";
-import { Playlist } from "@/types/PlaylistI";
+import { PlaylistI } from "@/types/PlaylistI";
 import styles from "./component.module.css";
 
-export const PlaylistCard = ({ playlist }: { playlist: Playlist }) => {
+export const PlaylistCard = ({ playlist }: { playlist: PlaylistI }) => {
   return (
     <div key={playlist.id} className={styles.playlistCard}>
       <img

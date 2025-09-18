@@ -5,13 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { UserProfile } from "@/types/UserProfileI";
 import axios from "axios";
 import { SpotifyService } from "@/services/SpotifyService/SpotifyService";
-import { Playlists } from "@/types/PlaylistI";
+import { PlaylistsI } from "@/types/PlaylistI";
 import { PlaylistCard } from "@/components/PlaylistCard";
 
 const spotifyService = SpotifyService.create();
 
 export default function Home() {
-  const [playlists, setPlaylists] = useState<Playlists>({} as Playlists);
+  const [playlists, setPlaylists] = useState<PlaylistsI>({} as PlaylistsI);
   const [profile, setProfile] = useState<UserProfile>({} as UserProfile);
   const searchParams = useSearchParams();
 

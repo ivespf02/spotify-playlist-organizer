@@ -1,0 +1,156 @@
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #121212;
+  min-height: 100vh;
+  color: #e5e5e5;
+}
+
+.createPlaylist {
+  background: #1e1e1e;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.pageTitle {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 1.5rem;
+}
+
+.formWrapper {
+  max-width: 600px;
+}
+
+.inputGroup {
+  margin-bottom: 1.5rem;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.inputField,
+.textareaField {
+  width: 100%;
+  background: #282828;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  color: #e5e5e5;
+  transition: border-color 0.2s ease;
+}
+
+.inputField:focus,
+.textareaField:focus {
+  outline: none;
+  border-color: #1db954;
+}
+
+.textareaField {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.submitButton {
+  background-color: #1db954;
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.submitButton:hover {
+  background-color: #1ed760;
+  transform: translateY(-2px);
+}
+
+.playlists {
+  background: #1e1e1e;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.sectionTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #2a2a2a;
+}
+
+.playlistGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.playlistCard {
+  background: #282828;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #333333;
+  cursor: pointer;
+}
+
+.playlistCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+.playlistCover {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.playlistInfo {
+  padding: 1rem;
+}
+
+.playlistTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+}
+
+.playlistDesc {
+  font-size: 0.875rem;
+  color: #b3b3b3;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pageTitle {
+    font-size: 1.75rem;
+  }
+
+  .formWrapper {
+    max-width: 100%;
+  }
+
+  .playlistGrid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}

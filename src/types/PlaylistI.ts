@@ -1,6 +1,6 @@
 import { Image } from "./ImageI";
 
-export interface Playlist {
+export interface PlaylistI {
   collaborative: boolean;
   description: string;
   href: string;
@@ -17,12 +17,12 @@ export interface Playlist {
   uri: string;
 }
 
-export interface Playlists {
+export interface PlaylistsI {
   href: string;
   limit: number;
   next: string;
   offset: number;
   previous: string;
   total: number;
-  items: Playlist[];
+  items: PlaylistI[];
 }

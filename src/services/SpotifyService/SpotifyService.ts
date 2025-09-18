@@ -1,7 +1,7 @@
 import { UserProfile } from "@/types/UserProfileI";
 import { SpotifyServiceI } from "./SpotifyServiceI";
 import axios from "axios";
-import { Playlists } from "@/types/PlaylistI";
+import { PlaylistsI } from "@/types/PlaylistI";
 
 export class SpotifyService implements SpotifyServiceI {
   private accessToken?: string;
@@ -45,11 +45,11 @@ export class SpotifyService implements SpotifyServiceI {
 
   public async getPlaylistsByUserId(user_id: string): Promise<{
     success: boolean;
-    data: Playlists | null;
+    data: PlaylistsI | null;
   }> {
     const url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
     
-    const { data }: { data: Playlists } = await axios.get(url, {
+    const { data }: { data: PlaylistsI } = await axios.get(url, {
       headers: {
         Authorization: "Bearer " + this.accessToken,
       },
@@ -77,7 +77,7 @@ export class SpotifyService implements SpotifyServiceI {
   ): Promise<any> {
     const url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
     
-    const { data }: { data: Playlists } = await axios.get(url, {
+    const { data }: { data: PlaylistsI } = await axios.get(url, {
       headers: {
         Authorization: "Bearer " + this.accessToken,
       },
