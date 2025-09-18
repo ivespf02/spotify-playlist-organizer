@@ -2,9 +2,9 @@
 import { PlaylistI } from "@/types/PlaylistI";
 import styles from "./component.module.css";
 
-export const PlaylistCard = ({ playlist }: { playlist: PlaylistI }) => {
+export const PlaylistCard = ({ playlist, onClick }: { playlist: PlaylistI, onClick: () => any }) => {
   return (
-    <div key={playlist.id} className={styles.playlistCard}>
+    <div key={playlist.id} onClick={onClick} className={styles.playlistCard}>
       <img
         src={playlist.images[1]?.url ?? ""}
         alt={`${playlist.name} cover`}

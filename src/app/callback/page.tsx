@@ -7,14 +7,17 @@ import axios from "axios";
 import { SpotifyService } from "@/services/SpotifyService/SpotifyService";
 import { PlaylistsI } from "@/types/PlaylistI";
 import { PlaylistCard } from "@/components/PlaylistCard";
+import { usePlaylistsStore } from "@/store/PlaylistsStore";
 
 const spotifyService = SpotifyService.create();
 
 export default function Home() {
-  const [playlists, setPlaylists] = useState<PlaylistsI>({} as PlaylistsI);
-  const [profile, setProfile] = useState<UserProfile>({} as UserProfile);
+  const router = useRouter();
   const searchParams = useSearchParams();
 
+  const { playlists, setPlaylists } = usePlaylistsStore()
+
+  const [profile, setProfile] = useState<UserProfile>({} as UserProfile);
   const [accessToken, setAccessToken] = useState<string>("");
   const [privateAccessToken, setPrivateAccessToken] = useState<string>("");
 
@@ -133,7 +136,7 @@ export default function Home() {
                 </li>
               </ul>
               <button
-                onClick={() => createSpotifyPlaylist()}
+                onClick={() => router.push("/new-playlist")}
                 className={styles.createPlaylistButton}
               >
                 Create New Playlist
@@ -148,7 +151,7 @@ export default function Home() {
             {playlists.items &&
               playlists.items.map((playlist) => {
                 console.log(playlist);
-                return <PlaylistCard key={playlist.id} playlist={playlist} />;
+                return <PlaylistCard onClick={() => router.push("/new-playlist")} key={playlist.id} playlist={playlist} />;
               })}
           </div>
         </section>

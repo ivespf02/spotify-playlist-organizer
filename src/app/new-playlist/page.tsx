@@ -1,7 +1,11 @@
+"use client"
 import { PlaylistsI } from "@/types/PlaylistI";
 import styles from "./page.module.css";
+import { usePlaylistsStore } from "@/store/PlaylistsStore";
 
-export default function NewPlaylist({ playlists }: { playlists: PlaylistsI }) {
+export default function NewPlaylist() {
+  const { playlists } = usePlaylistsStore()
+
   return (
     <div className={styles.container}>
       <section className={styles.createPlaylist}>
