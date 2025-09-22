@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { usePlaylistsStore } from "@/store/PlaylistsStore";
 import { PlaylistI } from "@/types/PlaylistI";
@@ -16,7 +16,8 @@ export default function NewPlaylist() {
     language: "",
   });
   const [loading, setLoading] = useState(false);
-  const [tracks, setTracks] = useState<any[]>([]); 
+  const [tracks, setTracks] = useState<any[]>([]);
+  const [progress, setProgress] = useState(0); // Track progress percentage
   const { playlists } = usePlaylistsStore();
 
   const currentYear = 2025;
@@ -24,10 +25,31 @@ export default function NewPlaylist() {
   const handleSearch = () => {
     setLoading(true);
     setTracks([]);
+    setProgress(0); 
+
+    const progressSteps = [10, 20, 50, 80, 100];
+    let step = 0;
+
+    const progressInterval = setInterval(() => {
+      if (step < progressSteps.length) {
+        setProgress(progressSteps[step]);
+        step++;
+      } else {
+        clearInterval(progressInterval);
+      }
+    }, 500);
+
     setTimeout(() => {
       setLoading(false);
-    }, 2000);
+      setProgress(100);
+      clearInterval(progressInterval);
+    }, 2500);
   };
+
+  useEffect(() => {
+    // Cleanup interval on component unmount
+    return () => clearInterval(progress);
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -209,8 +231,8 @@ export default function NewPlaylist() {
         <h2 className={styles.sectionTitle}>Tracks</h2>
         {loading ? (
           <div className={styles.loading}>
-            <progress className={styles.progressBar} />
-            <p>Loading tracks...</p>
+            <progress className={styles.progressBar} value={progress} max="100" />
+            <p>Loading tracks... {progress}%</p>
           </div>
         ) : (
           <div className={styles.trackGrid}>
