@@ -1,10 +1,12 @@
-"use client"
-import { PlaylistsI } from "@/types/PlaylistI";
+"use client";
+import { useState } from "react";
 import styles from "./page.module.css";
 import { usePlaylistsStore } from "@/store/PlaylistsStore";
+import { PlaylistI } from "@/types/PlaylistI";
 
 export default function NewPlaylist() {
-  const { playlists } = usePlaylistsStore()
+  const [selectedPlaylistIds, setSelectedPlaylistIds] = useState<string[]>([]);
+  const { playlists } = usePlaylistsStore();
 
   return (
     <div className={styles.container}>
@@ -41,7 +43,21 @@ export default function NewPlaylist() {
         <div className={styles.playlistGrid}>
           {playlists.items.map((playlist) => (
             <div
+              onClick={() => {
+                if (selectedPlaylistIds.includes(playlist.id)) {
+                  setSelectedPlaylistIds(
+                    selectedPlaylistIds.filter((each) => each !== playlist.id)
+                  );
+                } else {
+                  setSelectedPlaylistIds([...selectedPlaylistIds, playlist.id])
+                }
+              }}
               key={playlist.id}
+              style={
+                selectedPlaylistIds.includes(playlist.id)
+                  ? { borderWidth: 2, borderColor: "green" }
+                  : {}
+              }
               className={styles.playlistCard}
               role="button"
               tabIndex={0}

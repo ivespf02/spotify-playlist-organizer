@@ -23,7 +23,7 @@ export class SpotifyService implements SpotifyServiceI {
     data: UserProfileI | null;
   }> {
     const url = "https://api.spotify.com/v1/me";
-    console.log(this.accessToken)
+    console.log(this.accessToken);
     const { data }: { data: UserProfileI } = await axios.get(url, {
       headers: {
         Authorization: "Bearer " + this.accessToken,
@@ -47,36 +47,42 @@ export class SpotifyService implements SpotifyServiceI {
     success: boolean;
     data: PlaylistsI | null;
   }> {
-    const url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
-    
-    const { data }: { data: PlaylistsI } = await axios.get(url, {
-      headers: {
-        Authorization: "Bearer " + this.accessToken,
-      },
-    });
+    try {
+      const url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
 
-    if (data) {
+      const { data }: { data: PlaylistsI } = await axios.get(url, {
+        headers: {
+          Authorization: "Bearer " + this.accessToken,
+        },
+      });
+
+      if (data) {
+        return {
+          success: true,
+          data: data,
+        };
+      }
+
       return {
-        success: true,
-        data: data,
+        success: false,
+        data: null,
       };
+    } catch (err) {
+      console.log(err);
+      return {
+        success: false,
+        data: null
+      }
     }
-
-    return {
-      success: false,
-      data: null,
-    };
   }
 
   public async getSongsByUserId(user_id: string): Promise<any[]> {
     return [];
   }
 
-  public async getSongsByPlaylist(
-    playlist_id: string
-  ): Promise<any> {
+  public async getSongsByPlaylist(playlist_id: string): Promise<any> {
     const url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
-    
+
     const { data }: { data: PlaylistsI } = await axios.get(url, {
       headers: {
         Authorization: "Bearer " + this.accessToken,
@@ -84,7 +90,7 @@ export class SpotifyService implements SpotifyServiceI {
     });
 
     if (data) {
-        console.log(data)
+      console.log(data);
       return {
         success: true,
         data: data,

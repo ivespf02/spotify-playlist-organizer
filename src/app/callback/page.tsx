@@ -16,13 +16,12 @@ export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { playlists, setPlaylists } = usePlaylistsStore()
-  const { profile, setProfile } = useProfileStore()
+  const { playlists, setPlaylists } = usePlaylistsStore();
+  const { profile, setProfile } = useProfileStore();
 
+  const [counter, setCounter] = useState<number>(0);
   const [accessToken, setAccessToken] = useState<string>("");
   const [privateAccessToken, setPrivateAccessToken] = useState<string>("");
-
-  console.log(playlists);
 
   useEffect(() => {
     async function getAccessToken() {
@@ -57,10 +56,9 @@ export default function Home() {
       const res = await spotifyService.getUserProfile();
 
       if (res.success && res.data) {
-        console.log(res.data);
         setProfile({
           ...res.data,
-          accessToken: accessToken
+          accessToken: accessToken,
         });
       }
     };
@@ -75,14 +73,38 @@ export default function Home() {
       const res = await spotifyService.getPlaylistsByUserId(profile.id);
 
       if (res.success && res.data) {
-        console.log(res.data);
         setPlaylists(res.data);
 
-        const res2 = await spotifyService.getSongsByPlaylist(
+        await spotifyService.getSongsByPlaylist(
           res.data.items[0].id
         );
-        console.log(res2);
+        setCounter(counter + 1);
       }
+    };
+
+    setTimeout(() => {
+      if (counter < 35) {
+        console.log(`Making call number: ${counter}`)
+        if (accessToken.length) fetchPlaylists();
+      }
+    }, 1000);
+  }, [counter]);
+
+  useEffect(() => {
+    const fetchPlaylists = async () => {
+      if (!profile || !profile.id) return;
+
+      const res = await spotifyService.getPlaylistsByUserId(profile.id);
+
+      if (res.success && res.data) {
+        setPlaylists(res.data);
+
+        await spotifyService.getSongsByPlaylist(
+          res.data.items[0].id
+        );
+      }
+
+      setCounter(counter + 1);
     };
 
     if (accessToken.length) fetchPlaylists();
@@ -154,8 +176,13 @@ export default function Home() {
           <div className={styles.playlistGrid}>
             {playlists.items &&
               playlists.items.map((playlist) => {
-                console.log(playlist);
-                return <PlaylistCard onClick={() => router.push("/new-playlist")} key={playlist.id} playlist={playlist} />;
+                return (
+                  <PlaylistCard
+                    onClick={() => router.push("/new-playlist")}
+                    key={playlist.id}
+                    playlist={playlist}
+                  />
+                );
               })}
           </div>
         </section>
