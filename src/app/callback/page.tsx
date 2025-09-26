@@ -10,7 +10,7 @@ import { PlaylistCard } from "@/components/PlaylistCard";
 import { usePlaylistsStore } from "@/store/PlaylistsStore";
 import { useProfileStore } from "@/store/ProfileStore";
 
-const spotifyService = SpotifyService.create();
+export const spotifyService = SpotifyService.create();
 
 export default function Home() {
   const router = useRouter();
@@ -75,19 +75,11 @@ export default function Home() {
       if (res.success && res.data) {
         setPlaylists(res.data);
 
-        await spotifyService.getSongsByPlaylist(
-          res.data.items[0].id
-        );
         setCounter(counter + 1);
       }
     };
 
-    setTimeout(() => {
-      if (counter < 35) {
-        console.log(`Making call number: ${counter}`)
-        if (accessToken.length) fetchPlaylists();
-      }
-    }, 1000);
+    if (accessToken.length) fetchPlaylists();
   }, [counter]);
 
   useEffect(() => {
@@ -98,10 +90,6 @@ export default function Home() {
 
       if (res.success && res.data) {
         setPlaylists(res.data);
-
-        await spotifyService.getSongsByPlaylist(
-          res.data.items[0].id
-        );
       }
 
       setCounter(counter + 1);

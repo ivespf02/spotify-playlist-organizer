@@ -3,10 +3,13 @@ import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { usePlaylistsStore } from "@/store/PlaylistsStore";
 import { PlaylistI } from "@/types/PlaylistI";
+import { spotifyService } from "../callback/page";
+import { TrackI } from "@/types/TrackI";
 
 export default function NewPlaylist() {
   const [selectedPlaylistIds, setSelectedPlaylistIds] = useState<string[]>([]);
   const [selectedTrackIds, setSelectedTrackIds] = useState<string[]>([]);
+  const [syncedSongs, setSyncedSongs] = useState<Record<string, TrackI[]>>();
   const [filters, setFilters] = useState({
     genre: "",
     artist: "",
@@ -16,6 +19,7 @@ export default function NewPlaylist() {
     language: "",
   });
   const [loading, setLoading] = useState(false);
+  const [loadingSync, setLoadingSync] = useState<boolean>(false);
   const [tracks, setTracks] = useState<any[]>([]);
   const [progress, setProgress] = useState(0); // Track progress percentage
   const { playlists } = usePlaylistsStore();
@@ -25,7 +29,7 @@ export default function NewPlaylist() {
   const handleSearch = () => {
     setLoading(true);
     setTracks([]);
-    setProgress(0); 
+    setProgress(0);
 
     const progressSteps = [10, 20, 50, 80, 100];
     let step = 0;
@@ -45,6 +49,43 @@ export default function NewPlaylist() {
       clearInterval(progressInterval);
     }, 2500);
   };
+
+  const syncSelectedPlaylists = async () => {
+    for (let i = 0; i < selectedPlaylistIds.length; i++) {
+      if (!selectedPlaylistIds[i]) continue;
+      console.log(selectedPlaylistIds[i]);
+      const resFromGet = await spotifyService.getSongsByPlaylist(
+        selectedPlaylistIds[i]
+      );
+
+      const tracksToAdd: TrackI[] = resFromGet.data.items.map(
+        (each: { track: any }): TrackI | undefined => {
+          if (each.track) {
+          return {
+            album: {
+              name: each.track.album.name,
+              total_tracks: each.track.album.total_tracks,
+              release_date: each.track.album.release_date,
+              id: each.track.album.id,
+            },
+            artists: each.track.artists.map((each: any) => each.name),
+            duration_ms: each.track.duration_ms,
+            id: each.track.id,
+            name: each.track.name,
+            popularity: each.track.popularity,
+          };
+        }
+        }
+      ).filter((each: any) => each !== undefined);
+
+      setSyncedSongs((prev) => ({
+        ...prev,
+        [selectedPlaylistIds[i]]: tracksToAdd,
+      }));
+    }
+  };
+
+  console.log("Synced songss: ", syncedSongs);
 
   useEffect(() => {
     // Cleanup interval on component unmount
@@ -119,17 +160,35 @@ export default function NewPlaylist() {
             </div>
           ))}
         </div>
+        {loadingSync ? (
+          <div className={styles.loading}>
+            <progress
+              className={styles.progressBar}
+              value={progress}
+              max="100"
+            />
+            <p>Loading tracks... {progress}%</p>
+          </div>
+        ) : (
+          <button onClick={syncSelectedPlaylists} className={styles.syncButton}>
+            Sync
+          </button>
+        )}
       </section>
 
       <section className={styles.filters}>
         <h2 className={styles.sectionTitle}>Filter Tracks</h2>
         <div className={styles.filterGroup}>
           <div className={styles.inputGroup}>
-            <label htmlFor="genre" className={styles.inputLabel}>Genre</label>
+            <label htmlFor="genre" className={styles.inputLabel}>
+              Genre
+            </label>
             <select
               id="genre"
               value={filters.genre}
-              onChange={(e) => setFilters({ ...filters, genre: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, genre: e.target.value })
+              }
               className={styles.inputField}
             >
               <option value="">All</option>
@@ -146,18 +205,24 @@ export default function NewPlaylist() {
             </select>
           </div>
           <div className={styles.inputGroup}>
-            <label htmlFor="artist" className={styles.inputLabel}>Artist</label>
+            <label htmlFor="artist" className={styles.inputLabel}>
+              Artist
+            </label>
             <input
               id="artist"
               type="text"
               value={filters.artist}
-              onChange={(e) => setFilters({ ...filters, artist: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, artist: e.target.value })
+              }
               placeholder="Enter artist name"
               className={styles.inputField}
             />
           </div>
           <div className={styles.inputGroup}>
-            <label htmlFor="year" className={styles.inputLabel}>Year</label>
+            <label htmlFor="year" className={styles.inputLabel}>
+              Year
+            </label>
             <select
               id="year"
               value={filters.year}
@@ -165,7 +230,10 @@ export default function NewPlaylist() {
               className={styles.inputField}
             >
               <option value="">All</option>
-              {Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i).map((year) => (
+              {Array.from(
+                { length: currentYear - 1920 + 1 },
+                (_, i) => currentYear - i
+              ).map((year) => (
                 <option key={year} value={year}>
                   {year}
                 </option>
@@ -173,11 +241,15 @@ export default function NewPlaylist() {
             </select>
           </div>
           <div className={styles.inputGroup}>
-            <label htmlFor="popularity" className={styles.inputLabel}>Popularity (0-100)</label>
+            <label htmlFor="popularity" className={styles.inputLabel}>
+              Popularity (0-100)
+            </label>
             <select
               id="popularity"
               value={filters.popularity}
-              onChange={(e) => setFilters({ ...filters, popularity: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, popularity: e.target.value })
+              }
               className={styles.inputField}
             >
               <option value="">All</option>
@@ -194,8 +266,16 @@ export default function NewPlaylist() {
               {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((letter) => (
                 <button
                   key={letter}
-                  onClick={() => setFilters({ ...filters, initialLetter: filters.initialLetter === letter ? "" : letter })}
-                  className={`${styles.letterButton} ${filters.initialLetter === letter ? styles.active : ""}`}
+                  onClick={() =>
+                    setFilters({
+                      ...filters,
+                      initialLetter:
+                        filters.initialLetter === letter ? "" : letter,
+                    })
+                  }
+                  className={`${styles.letterButton} ${
+                    filters.initialLetter === letter ? styles.active : ""
+                  }`}
                 >
                   {letter}
                 </button>
@@ -203,11 +283,15 @@ export default function NewPlaylist() {
             </div>
           </div>
           <div className={styles.inputGroup}>
-            <label htmlFor="language" className={styles.inputLabel}>Language</label>
+            <label htmlFor="language" className={styles.inputLabel}>
+              Language
+            </label>
             <select
               id="language"
               value={filters.language}
-              onChange={(e) => setFilters({ ...filters, language: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, language: e.target.value })
+              }
               className={styles.inputField}
             >
               <option value="">All</option>
@@ -224,14 +308,20 @@ export default function NewPlaylist() {
             </select>
           </div>
         </div>
-        <button onClick={handleSearch} className={styles.submitButton}>Apply Filters</button>
+        <button onClick={handleSearch} className={styles.submitButton}>
+          Apply Filters
+        </button>
       </section>
 
       <section className={styles.tracks}>
         <h2 className={styles.sectionTitle}>Tracks</h2>
         {loading ? (
           <div className={styles.loading}>
-            <progress className={styles.progressBar} value={progress} max="100" />
+            <progress
+              className={styles.progressBar}
+              value={progress}
+              max="100"
+            />
             <p>Loading tracks... {progress}%</p>
           </div>
         ) : (
@@ -240,7 +330,9 @@ export default function NewPlaylist() {
               <div
                 onClick={() => {
                   if (selectedTrackIds.includes(track.id)) {
-                    setSelectedTrackIds(selectedTrackIds.filter((each) => each !== track.id));
+                    setSelectedTrackIds(
+                      selectedTrackIds.filter((each) => each !== track.id)
+                    );
                   } else {
                     setSelectedTrackIds([...selectedTrackIds, track.id]);
                   }
@@ -263,7 +355,8 @@ export default function NewPlaylist() {
                 <div className={styles.trackInfo}>
                   <h3 className={styles.trackTitle}>{track.name}</h3>
                   <p className={styles.trackDesc}>
-                    {track.artists?.map((a: any) => a.name).join(", ") || "Unknown artist"}
+                    {track.artists?.map((a: any) => a.name).join(", ") ||
+                      "Unknown artist"}
                   </p>
                 </div>
               </div>

@@ -71,8 +71,8 @@ export class SpotifyService implements SpotifyServiceI {
       console.log(err);
       return {
         success: false,
-        data: null
-      }
+        data: null,
+      };
     }
   }
 
@@ -82,26 +82,57 @@ export class SpotifyService implements SpotifyServiceI {
 
   public async getSongsByPlaylist(playlist_id: string): Promise<any> {
     const url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
+    let accumulatedData: PlaylistsI;
 
-    const { data }: { data: PlaylistsI } = await axios.get(url, {
-      headers: {
-        Authorization: "Bearer " + this.accessToken,
-      },
-    });
+    async function getSongs(urlToAccess: string, accessToken?: string) {
+      if (!accessToken) {
+        return {
+          success: false,
+          data: null,
+        };
+      }
+      
+      console.log(`Making call number 1`);
+      const { data }: { data: PlaylistsI } = await axios.get(urlToAccess, {
+        headers: {
+          Authorization: "Bearer " + accessToken,
+        },
+      });
 
-    if (data) {
-      console.log(data);
+      if (data) {
+        if (!accumulatedData) {
+          accumulatedData = data;
+        } else {
+          accumulatedData = {
+            ...accumulatedData,
+            items: [...accumulatedData?.items, ...data.items],
+          };
+        }
+
+        if (data.next) {
+          await getSongs(data.next, accessToken);
+        } else {
+          return {
+            success: true,
+            data: accumulatedData,
+          };
+        }
+      } else {
+        return {
+          success: false,
+          data: null,
+        };
+      }
+
       return {
-        success: true,
-        data: data,
-      };
+          success: true,
+          data: accumulatedData,
+        };
     }
 
-    return {
-      success: false,
-      data: null,
-    };
-    return [];
+    const res = await getSongs(url, this.accessToken);
+
+    return res;
   }
 
   public async addSongsToPlaylist(
