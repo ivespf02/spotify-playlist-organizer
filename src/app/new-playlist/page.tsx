@@ -21,7 +21,7 @@ export default function NewPlaylist() {
   const [loading, setLoading] = useState(false);
   const [loadingSync, setLoadingSync] = useState<boolean>(false);
   const [tracks, setTracks] = useState<any[]>([]);
-  const [progress, setProgress] = useState(0); // Track progress percentage
+  const [progress, setProgress] = useState(0);
   const { playlists } = usePlaylistsStore();
 
   const currentYear = 2025;
